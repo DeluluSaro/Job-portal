@@ -8,7 +8,7 @@ import { useState } from 'react';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
-// --- SVG Icon Components for the exact UI ---
+// --- SVG Icon Components ---
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
 const LocationIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 const BriefcaseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 21h14a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>;
@@ -20,9 +20,12 @@ export default function Filters() {
   const pathname = usePathname();
   const { replace } = useRouter();
 
+  // Helper to convert LPA from DB to monthly k for slider default
+  const toMonthlyK = (lpa) => (lpa * 100000) / 12 / 1000;
+
   const [salaryRange, setSalaryRange] = useState([
-    Number(searchParams.get('minSalary')) || 50,
-    Number(searchParams.get('maxSalary')) || 80
+    toMonthlyK(Number(searchParams.get('minSalary'))) || 50,
+    toMonthlyK(Number(searchParams.get('maxSalary'))) || 80
   ]);
 
   const handleFilterChange = useDebouncedCallback((key, value) => {
@@ -35,10 +38,18 @@ export default function Filters() {
     replace(`${pathname}?${params.toString()}`);
   }, 300);
 
+  // --- THE FIX IS HERE ---
   const handleSalaryChange = useDebouncedCallback((value) => {
     const params = new URLSearchParams(searchParams);
-    params.set('minSalary', value[0]);
-    params.set('maxSalary', value[1]);
+    
+    // Convert monthly salary in thousands back to LPA for the database query
+    const minLPA = (value[0] * 1000 * 12) / 100000;
+    const maxLPA = (value[1] * 1000 * 12) / 100000;
+
+    params.set('minSalary', minLPA.toFixed(1));
+    params.set('maxSalary', maxLPA.toFixed(1));
+    
+    // This correctly builds the URL with the '&' separator
     replace(`${pathname}?${params.toString()}`);
   }, 300);
 
@@ -50,8 +61,8 @@ export default function Filters() {
 
   return (
     <div className="bg-white border-y border-gray-200 mb-8 flex flex-col md:flex-row items-center text-sm">
-      
-      <FilterItem>
+      {/* ... other filter items remain the same ... */}
+       <FilterItem>
         <div className="absolute left-4 pointer-events-none"><SearchIcon /></div>
         <input
           type="text"
@@ -61,7 +72,6 @@ export default function Filters() {
           defaultValue={searchParams.get('title') || ''}
         />
       </FilterItem>
-
       <FilterItem>
         <div className="absolute left-4 pointer-events-none"><LocationIcon /></div>
         <select
@@ -77,7 +87,6 @@ export default function Filters() {
         </select>
         <div className="absolute right-4 pointer-events-none"><ChevronDownIcon /></div>
       </FilterItem>
-
       <FilterItem>
         <div className="absolute left-4 pointer-events-none"><BriefcaseIcon /></div>
         <select
@@ -94,6 +103,7 @@ export default function Filters() {
         <div className="absolute right-4 pointer-events-none"><ChevronDownIcon /></div>
       </FilterItem>
       
+      {/* Salary Range Slider */}
       <div className="w-full md:w-[350px] p-4 shrink-0">
           <div className="flex justify-between items-center mb-2">
               <span className="text-gray-500">Salary Per Month</span>
@@ -108,7 +118,6 @@ export default function Filters() {
               onChange={(value) => setSalaryRange(value)}
               onAfterChange={(value) => handleSalaryChange(value)}
               trackStyle={[{ backgroundColor: '#212121' }]}
-              // --- THIS IS THE STYLE CHANGE ---
               handleStyle={[
                   { borderColor: '#212121', backgroundColor: 'white', borderWidth: 2, opacity: 1 },
                   { borderColor: '#212121', backgroundColor: 'white', borderWidth: 2, opacity: 1 }
