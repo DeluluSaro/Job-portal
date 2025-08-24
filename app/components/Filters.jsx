@@ -8,19 +8,18 @@ import { useState } from 'react';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
-// --- SVG Icon Components ---
+// --- SVG Icon Components (ORIGINAL) ---
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
 const LocationIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 const BriefcaseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 21h14a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>;
 const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>;
-
 
 export default function Filters() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  // Helper to convert LPA from DB to monthly k for slider default
+  // Helper to convert LPA from DB to monthly k for slider default (ORIGINAL LOGIC)
   const toMonthlyK = (lpa) => (lpa * 100000) / 12 / 1000;
 
   const [salaryRange, setSalaryRange] = useState([
@@ -38,7 +37,7 @@ export default function Filters() {
     replace(`${pathname}?${params.toString()}`);
   }, 300);
 
-  // --- THE FIX IS HERE ---
+  // ORIGINAL SALARY HANDLER (FIXED)
   const handleSalaryChange = useDebouncedCallback((value) => {
     const params = new URLSearchParams(searchParams);
     
@@ -49,7 +48,6 @@ export default function Filters() {
     params.set('minSalary', minLPA.toFixed(1));
     params.set('maxSalary', maxLPA.toFixed(1));
     
-    // This correctly builds the URL with the '&' separator
     replace(`${pathname}?${params.toString()}`);
   }, 300);
 
@@ -61,8 +59,7 @@ export default function Filters() {
 
   return (
     <div className="bg-white border-y border-gray-200 mb-8 flex flex-col md:flex-row items-center text-sm">
-      {/* ... other filter items remain the same ... */}
-       <FilterItem>
+      <FilterItem>
         <div className="absolute left-4 pointer-events-none"><SearchIcon /></div>
         <input
           type="text"
@@ -103,7 +100,7 @@ export default function Filters() {
         <div className="absolute right-4 pointer-events-none"><ChevronDownIcon /></div>
       </FilterItem>
       
-      {/* Salary Range Slider */}
+      {/* Salary Range Slider - ORIGINAL UI */}
       <div className="w-full md:w-[350px] p-4 shrink-0">
           <div className="flex justify-between items-center mb-2">
               <span className="text-gray-500">Salary Per Month</span>

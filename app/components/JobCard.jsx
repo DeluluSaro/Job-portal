@@ -17,8 +17,31 @@ function timeAgo(date) {
 }
 
 export default function JobCard({ job }) {
-  // Format the salary display string
-  const salaryDisplay = job.minSalary ? `${job.minSalary}LPA` : 'Not Disclosed';
+  // Format the salary display string - handle the large numbers properly
+  const salaryDisplay = (() => {
+    if (job.minSalary && job.maxSalary) {
+      // Handle large numbers like 90000-230000 and convert to LPA format
+      if (job.minSalary > 1000) {
+        const minLPA = (job.minSalary / 100000).toFixed(1);
+        const maxLPA = (job.maxSalary / 100000).toFixed(1);
+        return `${minLPA}-${maxLPA} LPA`;
+      }
+      return `${job.minSalary}-${job.maxSalary} LPA`;
+    } else if (job.minSalary) {
+      if (job.minSalary > 1000) {
+        const minLPA = (job.minSalary / 100000).toFixed(1);
+        return `${minLPA}+ LPA`;
+      }
+      return `${job.minSalary}+ LPA`;
+    } else if (job.maxSalary) {
+      if (job.maxSalary > 1000) {
+        const maxLPA = (job.maxSalary / 100000).toFixed(1);
+        return `Up to ${maxLPA} LPA`;
+      }
+      return `Up to ${job.maxSalary} LPA`;
+    }
+    return 'Not Disclosed';
+  })();
   
   // Dynamically generate the first two bullet points from the job description
   const descriptionPoints = job.description

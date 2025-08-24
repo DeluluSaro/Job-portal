@@ -4,8 +4,8 @@ import Filters from '@/app/components/Filters';
 import Header from '@/app/components/Header';
 
 export default async function HomePage({ searchParams }) {
-  const { title, location, jobType, salary } = searchParams;
-  const filters = { title, location, jobType, salary };
+  const { title, location, jobType, minSalary, maxSalary } = searchParams;
+  const filters = { title, location, jobType, minSalary, maxSalary };
 
   const jobs = await getJobs(filters);
 
