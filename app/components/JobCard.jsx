@@ -72,6 +72,9 @@ export default function JobCard({ job }) {
         </div>
       </div>
 
+
+      
+
       {/* Call to Action (CTA) Button */}
       <button className="w-full mt-auto bg-blue-500 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
         Apply Now
